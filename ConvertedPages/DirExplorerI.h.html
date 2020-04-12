@@ -1,0 +1,278 @@
+<!Document html>
+<html>
+<head>
+<link rel = "stylesheet" href = "style.css">
+<script src="showHideClass.js"></script>
+</head>
+<body>
+<button onclick = "showHideClass('classes')">Show or Hide Class Contents</button>
+<button onclick = "showHideClass('functions')">Show or Hide Function Contents</button>
+<button onclick = "showHideClass('comments')">Show or Hide Comments</button><br><a href="FileSystem.h.html ">FileSystem.h</a>&nbsp&nbsp&nbsp&nbsp<a href="Application.h.html ">Application.h</a>&nbsp&nbsp&nbsp&nbsp<pre>
+#pragma once
+<div class="comments">/////////////////////////////////////////////////////////////////////</div>
+<div class="comments">// DirExplorerI.h - Inherited directory explorer                   //</div>
+<div class="comments">// ver 1.2                                                         //</div>
+<div class="comments">// Jim Fawcett, CSE687 - Object Oriented Design, Fall 2018         //</div>
+<div class="comments">/////////////////////////////////////////////////////////////////////</div>
+<div class="comments">/*
+* Package Operations:
+* -------------------
+* DirExplorerI provides a class, of the same name, that executes a
+* depth first search of a directory tree rooted at a specified path.
+* Each time it enters a directory, it invokes its member function
+* doDir, and for every file in that directory, it invokes doFile.
+*
+* We call this a "Inherited Directory Explorer" because, it carries
+* out its assigned responsibilities well, and allows the using
+* application to modify what the doDir and doFiles do, by using
+* a class, DerivedDirExplorerI, derived from DirExplorerI.
+* This is an improvement over DirExplorerN because the application
+* does not need to change any part of the DirExplorerI class.
+*
+* Other projects in this solution do just that, in different ways.
+
+* - DirExplorer-Naive:
+*     Implements basic processing well, but applications have to
+*     change its code to affect how files and directories are
+*     handled.
+* - DirExplorer-Template:
+*     Applications provide template class parameters to define file
+*      and directory processing.
+* - DirExplorer-Inheritance:
+*     Applications subclass DirExplorerI, overriding virtual functions
+*     doFile, doDir, and doQuit to define how files and directories
+*     are handled, and whether processing should terminate before
+*     visiting all directories.
+* - DirExplorer-Events:
+*     Applications use Event Interfaces, published by DirExplorerE,
+*     by subscribing event-handler functions, and control terminate
+*      processing using a plug-in interface.
+* - DirExplorer-Provider:
+*     Applications implement a file system provider that implements
+*     a Provider interface published by DirExplorerP.
+*
+* We'll be using this solution to illustrate techniques for building
+* flexible software.
+*
+* Required Files:
+* ---------------
+* DirExplorerI.h, DirExplorerI.cpp  <div class="comments">// cpp file illustrates how app can modify processing</div>
+* FileSystem.h, FileSystem.cpp      <div class="comments">// Directory and Path classes</div>
+* StringUtilities.h                 <div class="comments">// Title function</div>
+* CodeUtilities.h                   <div class="comments">// ProcessCmdLine class</div>
+*
+* Maintenance History:
+* --------------------
+* ver 1.2 : 19 Aug 2018
+* - moved methods to inline functions, below class declaration
+* ver 1.1 : 16 Aug 2018
+* - made no recursion default, added option /s for recursion
+* ver 1.0 : 12 Aug 2018
+* - first release
+*
+*/</div>
+#include &lt;vector&gt;
+#include "../FileSystem/FileSystem.h"
+#include "../Application/Application.h"
+
+namespace FileSystem
+{
+  class DirExplorerI
+  <div class="classes">{
+  public:
+    using patterns = std::vector&lt;std::string&gt;;
+
+    static std::string version() <div class="functions">{ return "ver1.2"; }</div>
+
+    DirExplorerI(const std::string& path);
+    virtual ~DirExplorerI();
+
+    void addPattern(const std::string& patt);
+    void hideEmptyDirectories(bool hide);
+    void showAllInCurrDir(bool showAllCurrDirFiles);
+    bool showAllInCurrDir();
+    void maxItems(size_t numFiles);
+    void recurse(bool doRecurse = true);
+
+    void search();
+    virtual void find(const std::string& path);
+    virtual void doFile(const std::string& filename);
+    virtual void doDir(const std::string& dirname);
+    size_t fileCount();
+    size_t dirCount();
+    void count(size_t maxItems);
+    void showStats();
+
+  protected:
+    virtual bool done();
+
+    std::string path_;
+    patterns patterns_;
+    bool hideEmptyDir_ = false;
+    bool showAll_ = false;      <div class="comments">// show files in current dir even if maxItems_ has been exceeded</div>
+    size_t maxItems_ = 0;
+    size_t dirCount_ = 0;
+    size_t fileCount_ = 0;
+    bool recurse_ = false;
+  };</div>
+
+  <div class="comments">//----&lt; construct DirExplorerN instance with default pattern &gt;-----</div>
+
+  DirExplorerI::DirExplorerI(const std::string& path) : path_(path)
+  <div class="functions">{
+    std::cout &lt;&lt; "\n  constructing DirExplorerI";
+    patterns_.push_back("*.*");
+  }</div>
+  <div class="comments">//----&lt; virtual destructor supports substitution &gt;-----------------</div>
+
+  DirExplorerI::~DirExplorerI() <div class="functions">{}</div>
+
+  <div class="comments">//----&lt; add specified patterns for selecting file names &gt;----------</div>
+
+  void DirExplorerI::addPattern(const std::string& patt)
+  <div class="functions">{
+    if (patterns_.size() == 1 && patterns_[0] == "*.*")
+      patterns_.pop_back();
+    patterns_.push_back(patt);
+  }</div>
+  <div class="comments">//----&lt; set option to hide empty directories &gt;---------------------</div>
+
+  void DirExplorerI::hideEmptyDirectories(bool hide)
+  <div class="functions">{
+    hideEmptyDir_ = hide;
+  }</div>
+  <div class="comments">//----&lt; stop display before showing all files in dir &gt;-------------</div>
+
+  void DirExplorerI::showAllInCurrDir(bool showAllCurrDirFiles)
+  <div class="functions">{
+    showAll_ = showAllCurrDirFiles;
+  }</div>
+  <div class="comments">//----&lt; stop display before showing all files in dir? &gt;------------</div>
+
+  bool DirExplorerI::showAllInCurrDir()
+  <div class="functions">{
+    return showAll_;
+  }</div>
+  <div class="comments">//----&lt; set the maximum number of files to display &gt;---------------</div>
+
+  void DirExplorerI::maxItems(size_t numFiles)
+  <div class="functions">{
+    maxItems_ = numFiles;
+  }</div>
+  <div class="comments">//----&lt; set option to recusively walk dir tree &gt;-------------------</div>
+
+  void DirExplorerI::recurse(bool doRecurse)
+  <div class="functions">{
+    recurse_ = doRecurse;
+  }</div>
+  <div class="comments">//----&lt; start Depth First Search at path held in path_ &gt;-----------</div>
+
+  void DirExplorerI::search()
+  <div class="functions">{
+    find(path_);
+  }</div>
+  <div class="comments">//----&lt; search for directories and their files &gt;-------------------</div>
+  <div class="comments">/*
+  Recursively finds all dirs and files on the specified path,
+  executing doDir when entering a directory and doFile when finding a file.
+  */</div>
+  void DirExplorerI::find(const std::string& path)
+  <div class="functions">{
+    if (done())  <div class="comments">// stop searching</div>
+      return;
+
+    bool hasFiles = false;
+    std::string fpath = FileSystem::Path::getFullFileSpec(path);
+    if (!hideEmptyDir_)
+      doDir(fpath);
+
+    for (auto patt : patterns_)
+    {
+      std::vector&lt;std::string&gt; files = FileSystem::Directory::getFiles(fpath, patt);
+      if (!hasFiles && hideEmptyDir_)
+      {
+        if (files.size() &gt; 0)
+        {
+          doDir(fpath);
+          hasFiles = true;  <div class="comments">// show dir only for the first pattern</div>
+        }
+      }
+      for (auto f : files)
+      {
+        doFile(f);
+      }
+    }
+
+    if (done())  <div class="comments">// stop recursion</div>
+      return;
+
+    std::vector&lt;std::string&gt; dirs = FileSystem::Directory::getDirectories(fpath);
+    for (auto d : dirs)
+    {
+      if (d == "." || d == "..")
+        continue;
+      std::string dpath = fpath + "\\" + d;
+      if (recurse_)
+      {
+        find(dpath);
+      }
+      else
+      {
+        doDir(dpath);
+      }
+    }
+  }</div>
+  <div class="comments">//----&lt; default file processing &gt;----------------------------------</div>
+
+  void DirExplorerI::doFile(const std::string& filename)
+  <div class="functions">{
+    if (!done() || showAllInCurrDir())
+    {
+      std::cout &lt;&lt; "\n  fileI:    " &lt;&lt; filename;
+      ++fileCount_;
+    }
+  }</div>
+  <div class="comments">//----&lt; default dir processing &gt;-----------------------------------</div>
+
+  void DirExplorerI::doDir(const std::string& dirname)
+  <div class="functions">{
+    std::cout &lt;&lt; "\n  dirI:  " &lt;&lt; dirname;
+    ++dirCount_;
+  }</div>
+  <div class="comments">//----&lt; show number of files processed &gt;---------------------------</div>
+
+  size_t DirExplorerI::fileCount()
+  <div class="functions">{
+    return fileCount_;
+  }</div>
+  <div class="comments">//----&lt; show number of directories processed &gt;---------------------</div>
+
+  size_t DirExplorerI::dirCount()
+  <div class="functions">{
+    return dirCount_;
+  }</div>
+  <div class="comments">//----&lt; show final counts for files and dirs &gt;---------------------</div>
+
+  void DirExplorerI::showStats()
+  <div class="functions">{
+    std::cout &lt;&lt; "\n\n  processed " &lt;&lt; fileCount_ &lt;&lt; " files in " &lt;&lt; dirCount_ &lt;&lt; " directories";
+    if (done())
+    {
+      std::cout &lt;&lt; "\n  stopped because max number of files exceeded";
+    }
+  }</div>
+  <div class="comments">//----&lt; default condition for stopping navigation &gt;----------------</div>
+
+  bool DirExplorerI::done()
+  <div class="functions">{
+    if (0 &lt; maxItems_ && maxItems_ &lt; fileCount_)
+    {
+      return true;
+    }
+    return false;
+  }</div>
+}
+</pre>
+</body
+></html
+>

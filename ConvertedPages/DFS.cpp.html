@@ -1,0 +1,59 @@
+<!Document html>
+<html>
+<head>
+<link rel = "stylesheet" href = "style.css">
+<script src="showHideClass.js"></script>
+</head>
+<body>
+<button onclick = "showHideClass('classes')">Show or Hide Class Contents</button>
+<button onclick = "showHideClass('functions')">Show or Hide Function Contents</button>
+<button onclick = "showHideClass('comments')">Show or Hide Comments</button><br><a href="DFS.h.html ">DFS.h</a>&nbsp&nbsp&nbsp&nbsp<pre>
+<div class="comments">/////////////////////////////////////////////////////////////////////</div>
+<div class="comments">// DFS.h - Depth First Search using provider model                 //</div>
+<div class="comments">// ver 1.1                                                         //</div>
+<div class="comments">// Jim Fawcett, CSE687 - Object Oriented Design, Fall 2018         //</div>
+<div class="comments">/////////////////////////////////////////////////////////////////////</div>
+
+#ifdef TEST_DFS
+
+#include "DFS.h"
+#include "Provider.h"
+#include "../Utilities/StringUtilities/StringUtilities.h"
+#include "../Utilities/CodeUtilities/CodeUtilities.h"
+
+using namespace Utilities;
+using namespace Provider;
+
+int main(int argc, char* argv[])
+<div class="functions">{
+  Title("Demonstrate DFS with Directory Provider Model");
+
+  ProcessCmdLine pcl(argc, argv);
+  if (pcl.parseError())
+    return 1;
+
+  preface("Command Line: ");
+  pcl.showCmdLine();
+  putline();
+
+  DirProvider dp(pcl.path());
+
+  for (auto patt : pcl.patterns())
+  {
+    dp.addPattern(patt);
+  }
+
+  if(pcl.hasOption('h'))
+    dp.hideEmptyDirectories(true);
+
+  Search::DFS&lt;IProvider&gt; dfs(&dp);
+  dfs.search();
+
+  std::cout &lt;&lt; "\n\n";
+  return 0;
+}</div>
+#endif
+</pre>
+</body
+></html
+>

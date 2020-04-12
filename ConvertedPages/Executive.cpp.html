@@ -1,0 +1,204 @@
+<!Document html>
+<html>
+<head>
+<link rel = "stylesheet" href = "style.css">
+<script src="showHideClass.js"></script>
+</head>
+<body>
+<button onclick = "showHideClass('classes')">Show or Hide Class Contents</button>
+<button onclick = "showHideClass('functions')">Show or Hide Function Contents</button>
+<button onclick = "showHideClass('comments')">Show or Hide Comments</button><br><a href="Executive.h.html ">Executive.h</a>&nbsp&nbsp&nbsp&nbsp<pre>
+<div class="comments">///////////////////////////////////////////////////////////////////////</div>
+<div class="comments">// Executive.cpp - class used to as entry point of project, manage	 //</div>
+<div class="comments">//				   other packages like display and converter.        //</div>
+<div class="comments">// ver 1.0                                                           //</div>
+<div class="comments">// Dhruv G Bhatti, CSE687 - Object Oriented Design, Spring 2018      //</div>
+<div class="comments">///////////////////////////////////////////////////////////////////////</div>
+
+#include "Executive.h"
+<div class="comments">//#include "../CppParser/Parser/ConfigureParser.h"</div>
+<div class="comments">//#include "../CppParser/Parser/Parser.h"</div>
+<div class="comments">//#include "../CppParser/Parser/ActionsAndRules.h"</div>
+<div class="comments">//#include "../CppParser/AbstractSyntaxTree/AbstrSynTree.h"</div>
+<div class="comments">//#include "../CppParser/ScopeStack/ScopeStack.h"</div>
+#include&lt;regex&gt;
+#include "IExecutive.h"
+
+using namespace CodeUtilities;
+
+
+using namespace Utilities;
+using namespace FileSystem;
+using namespace HTML;
+using namespace CodeAnalysis;
+
+<div class="comments">//default constructor</div>
+Executive::Executive()
+<div class="functions">{
+	<div class="comments">/*std::cout &lt;&lt; "class excecutive created" &lt;&lt; std::endl;*/</div>
+}</div>
+
+<div class="comments">//default destructor</div>
+Executive::~Executive()
+<div class="functions">{
+}</div>
+
+<div class="comments">//function to display list of files</div>
+void Executive::displayFiles(std::vector&lt;std::string&gt; Files) <div class="functions">{
+	for (auto file : Files)
+		std::cout &lt;&lt; "\n" &lt;&lt; file; 
+	std::cout &lt;&lt; "\n";
+}</div>
+
+<div class="comments">//function to display error message incase user enter invalid comand line argument</div>
+std::string customUsage()
+<div class="functions">{
+	std::string usage;
+	usage += "\n  Command Line: path [/option]* [/pattern]*";
+	usage += "\n    path is relative or absolute path where processing begins";
+	usage += "\n    [/option]* are one or more options of the form:";
+	usage += "\n      /s - walk directory recursively";
+	<div class="comments">//usage += "\n      /h - hide empty directories";</div>
+	<div class="comments">//usage += "\n      /a - on stopping, show all files in current directory";</div>
+	usage += "\n    [pattern]* are one or more pattern strings of the form:";
+	usage += "\n      *.h *.cpp *.cs *.txt or *.*";
+	usage += "\n";
+	return usage;
+
+}</div>
+
+
+
+<div class="comments">//function to Processing comand line arguments and retrive files using regex</div>
+ inline std::vector&lt;std::string&gt; Executive::initialization(int argc, char** argv) <div class="functions">{
+	ProcessCmdLine pcl(argc, argv);
+	pcl.usage(customUsage());
+
+	preface("Command Line: ");
+	pcl.showCmdLine();
+	pcl.showRegexes();
+	std::cout &lt;&lt; "\n";
+
+	if (pcl.parseError())
+	{
+		pcl.usage();
+		std::cout &lt;&lt; "\n\n";
+		_getche();
+		return std::vector&lt;std::string&gt;();
+	}
+
+	DirExplorerN de(pcl.path());
+	for (auto patt : pcl.patterns())
+	{
+		de.addPattern(patt);
+	}
+
+	if (pcl.hasOption('s'))
+	{
+		de.recurse();
+	}
+
+	de.search();
+
+	std::vector&lt;std::string&gt; filesRetreived = de.fileToProcess();
+	std::vector&lt;std::string&gt; CppToHtmlFiles;
+
+	<div class="comments">//std::cout &lt;&lt; "\n Demonstrating Req 5 and Req 6";</div>
+	std::cout &lt;&lt; "\n List of files before applying regex";
+	displayFiles(filesRetreived);
+	if (pcl.regexes().size() &gt; 0) {
+		for (auto regeX : pcl.regexes()) {
+			std::regex s(regeX);
+			for (auto file : filesRetreived) {
+				auto fileName = Path::getName(file);
+				if (regex_match(fileName, s))
+					CppToHtmlFiles.push_back(file);
+			}
+		}
+	}
+	else {
+		CppToHtmlFiles = filesRetreived;
+	}
+
+	std::cout &lt;&lt; "\n List of files after applying regex";
+	displayFiles(CppToHtmlFiles);
+
+	HTML::converter conv;  <div class="comments">//converter object</div>
+	std::vector&lt;std::string&gt; htmlFiles;  <div class="comments">//new vector</div>
+
+	dependencies object;
+	std::map&lt;std::string, std::vector&lt;std::string&gt;&gt; depT;
+	depT = object.summonParser(CppToHtmlFiles);
+	std::map&lt;std::string, std::map&lt;std::size_t, dependencies::TypeInfo&gt;&gt; typeInfo = object.returnTypeInfoTable();
+
+	for (auto file : CppToHtmlFiles) {
+		htmlFiles.push_back(conv.cppToHtml(file, depT, typeInfo));
+	}
+
+	return htmlFiles;
+}</div>
+
+
+
+
+
+
+
+<div class="comments">////Test Stub for execution package</div>
+#ifdef TEST_EXECUTIVE
+
+
+int main(int argc, char** argv) <div class="functions">{
+
+
+	dependencies object;
+
+	Executive obj;
+	obj.Req3();
+	std::vector&lt;std::string&gt; initialization(int argc, char ** argv);
+	std::vector&lt;std::string&gt; CppToHtmlFiles;
+	CppToHtmlFiles = initialization(argc,argv);
+	
+	std::cout &lt;&lt; "\n List of file after applying regex";
+
+	if (CppToHtmlFiles.size() == 0) {
+		std::cout &lt;&lt; "\n No files found";
+		_getche();
+		return -1;
+	}
+	obj.displayFiles(CppToHtmlFiles);
+	std::cout &lt;&lt; "\n ";
+	std::cout &lt;&lt; "Demonstarting requirement 7 & 8\n\n";
+	std::cout &lt;&lt; "Converter::CppToHtml function converts all .cpp and .h file to .html\n";
+	std::cout &lt;&lt; "Dependency::summonParser is responsible for parsing the files and storing the dependency in a map\n";
+	std::cout &lt;&lt; "Converter::DivTagsAdded and Converter::HandlingFunctions are the functions that handle divtags and functions.\n\n";
+	HTML::converter conv;  <div class="comments">//converter object</div>
+	std::vector&lt;std::string&gt; htmlFiles;  <div class="comments">//new vector</div>
+	
+	std::map&lt;std::string, std::vector&lt;std::string&gt;&gt; depT;
+	depT = object.summonParser(CppToHtmlFiles);
+	std::map&lt;std::string, std::map&lt;std::size_t, dependencies::TypeInfo&gt;&gt; typeInfo = object.returnTypeInfoTable();
+
+	for (auto file : CppToHtmlFiles) {
+		htmlFiles.push_back(conv.cppToHtml(file, depT, typeInfo));
+	}
+	
+	obj.displayFiles(CppToHtmlFiles);
+	
+	<div class="comments">//std::string dirPath = "../ConvertedPages";</div>
+	std::vector&lt;std::string&gt; convertedFiles = FileSystem::Directory::getFiles();
+	std::string x = FileSystem::Directory::getCurrentDirectory();
+
+	std::cout &lt;&lt; "\n Opening the files one by one";
+	display d;
+	d.showWebPage(htmlFiles);
+
+	_getche();
+	return 0;
+}</div>
+
+#endif
+</pre>
+</body
+></html
+>

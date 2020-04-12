@@ -1,0 +1,90 @@
+<!Document html>
+<html>
+<head>
+<link rel = "stylesheet" href = "style.css">
+<script src="showHideClass.js"></script>
+</head>
+<body>
+<button onclick = "showHideClass('classes')">Show or Hide Class Contents</button>
+<button onclick = "showHideClass('functions')">Show or Hide Function Contents</button>
+<button onclick = "showHideClass('comments')">Show or Hide Comments</button><br><a href="CodeUtilities.h.html ">CodeUtilities.h</a>&nbsp&nbsp&nbsp&nbsp<a href="DirExplorerN.h.html ">DirExplorerN.h</a>&nbsp&nbsp&nbsp&nbsp<a href="ConfigureParser.h.html ">ConfigureParser.h</a>&nbsp&nbsp&nbsp&nbsp<a href="ActionsAndRules.h.html ">ActionsAndRules.h</a>&nbsp&nbsp&nbsp&nbsp<a href="AbstrSynTree.h.html ">AbstrSynTree.h</a>&nbsp&nbsp&nbsp&nbsp<pre>
+<div class="comments">/////////////////////////////////////////////////////////////////////////////</div>
+<div class="comments">// Executive.h - Support file and directory operations                     //</div>
+<div class="comments">// ver 1.0                                                                 //</div>
+<div class="comments">// ----------------------------------------------------------------------- //</div>
+<div class="comments">// copyright © Dhruv G Bhatti, 2018                                        //</div>
+<div class="comments">// All rights granted provided that this notice is retained                //</div>
+<div class="comments">// ----------------------------------------------------------------------- //</div>
+<div class="comments">// Language:    Visual C++, Visual Studio 2017                             //</div>
+<div class="comments">// Platform:    HP Envy x360 , Ryzen 7, Windows 10                         //</div>
+<div class="comments">// Application: Fall Project, 2018                                         //</div>
+<div class="comments">// Author:      Dhruv G BHatti, class 2018-2020, Syracuse University       //</div>
+<div class="comments">//              (571) 635 0862, dgbhatti@syr.edu                           //</div>
+<div class="comments">/////////////////////////////////////////////////////////////////////////////</div>
+<div class="comments">/*
+ * Module Operations:
+ * ==================
+ * This module acts as entry point of the project. It controlls all packages like display and Converter.
+ *
+ * Required Files:
+ * ===============
+ * Process.h, Process.cpp
+ * Converter.h, Converter.cpp
+ * codeUtilities.h, codeUtilities.cpp
+ * DirExplorerN.h, DirExplorerN.cpp
+ * display.h, display.cpp
+ * ConfigureParser.h, ConfigureParser.cpp 
+ * Parser.h, Parser.cpp
+ * ActionsAndRules.h, ActionsAndRules.cpp
+ * AbstrSynTree.h, AbstrSynTree.cpp
+ * ScopeStack.h, ScopeStack.cpp
+ * dependencies.h, dependencies.cpp
+ * IExecutive.h, IExecutive.cpp
+ *
+ * Build Command:
+ * ==============
+ * cl /EHa /DTEST_FILESYSTEM FileSystem.cpp
+ *
+ * Maintenance History:
+ * ====================
+ * ver 1.0 : 5 Jan 2018
+ * - first release
+ */</div>
+
+#pragma once
+#include "../Converter/Converter.h"
+#include "../display/display.h"
+#include "../DirectoryNavigator/Utilities/CodeUtilities/CodeUtilities.h"
+#include "../DirectoryNavigator/DirExplorer-Naive/DirExplorerN.h"
+#include "../CppCommWithFileXfer/Utilities/Utilities.h"
+#include "../CppParser/Parser/ConfigureParser.h"
+#include "../CppParser/Parser/Parser.h"
+#include "../CppParser/Parser/ActionsAndRules.h"
+#include "../CppParser/AbstractSyntaxTree/AbstrSynTree.h"
+#include "../CppParser/ScopeStack/ScopeStack.h"
+#include "../dependencies/dependencies.h"
+#include "IExecutive.h"
+#include&lt;conio.h&gt;
+#include&lt;vector&gt;
+#define Util StringHelper
+
+
+class Executive : public IExecutiveClass
+<div class="classes">{
+public:
+	Executive();
+	~Executive();
+	void Req3();
+	std::vector&lt;std::string&gt; initialization(int argc, char ** argv) override;
+	void displayFiles(std::vector&lt;std::string&gt; Files);
+	<div class="comments">//int publish(int argc, char** argv);</div>
+};</div>
+
+IExecutiveClass* ObjectFactory::createClient()
+<div class="functions">{
+	return new Executive;
+}
+</pre>
+</body
+></html
+>

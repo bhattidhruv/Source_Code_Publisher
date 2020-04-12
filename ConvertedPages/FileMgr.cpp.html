@@ -1,0 +1,86 @@
+<!Document html>
+<html>
+<head>
+<link rel = "stylesheet" href = "style.css">
+<script src="showHideClass.js"></script>
+</head>
+<body>
+<button onclick = "showHideClass('classes')">Show or Hide Class Contents</button>
+<button onclick = "showHideClass('functions')">Show or Hide Function Contents</button>
+<button onclick = "showHideClass('comments')">Show or Hide Comments</button><br><a href="FileMgr.h.html ">FileMgr.h</a>&nbsp&nbsp&nbsp&nbsp<pre>
+<div class="comments">/////////////////////////////////////////////////////////////////////</div>
+<div class="comments">// FileMgr.cpp - find files matching specified patterns            //</div>
+<div class="comments">//               on a specified path                               //</div>
+<div class="comments">// ver 2.2                                                         //</div>
+<div class="comments">// Jim Fawcett, CSE687 - Object Oriented Design, Spring 2016       //</div>
+<div class="comments">/////////////////////////////////////////////////////////////////////</div>
+
+#include "FileMgr.h"
+#include &lt;iostream&gt;
+
+using namespace FileManager;
+
+IFileMgr* FileMgr::pInstance_;
+
+IFileMgr* IFileMgr::getInstance()
+<div class="functions">{
+  return FileMgr::getInstance();
+}</div>
+
+#ifdef TEST_FILEMGR
+
+using namespace FileManager;
+
+struct FileHandler : IFileEventHandler
+<div class="classes">{
+  void execute(const std::string& fileSpec)
+  <div class="functions">{
+    std::cout &lt;&lt; "\n  --   " &lt;&lt; fileSpec;
+  }</div>
+};</div>
+
+struct DirHandler : IDirEventHandler
+<div class="classes">{
+  void execute(const std::string& dirSpec)
+  <div class="functions">{
+    std::cout &lt;&lt; "\n  ++ " &lt;&lt; dirSpec;
+  }</div>
+};</div>
+
+struct DoneHandler : IDoneEventHandler
+<div class="classes">{
+  void execute(size_t numFilesProcessed)
+  <div class="functions">{
+    std::cout &lt;&lt; "\n\n  Processed " &lt;&lt; numFilesProcessed &lt;&lt; " files";
+  }</div>
+};</div>
+int main()
+<div class="functions">{
+  std::cout &lt;&lt; "\n  Testing FileMgr";
+  std::cout &lt;&lt; "\n =================";
+
+  std::string path = FileSystem::Path::getFullFileSpec("..");
+  IFileMgr* pFmgr = FileMgrFactory::create(path);
+
+  FileHandler fh;
+  DirHandler dh;
+  DoneHandler dnh;
+
+  pFmgr-&gt;regForFiles(&fh);
+  pFmgr-&gt;regForDirs(&dh);
+  pFmgr-&gt;regForDone(&dnh);
+
+  pFmgr-&gt;addPattern("*.h");
+  pFmgr-&gt;addPattern("*.cpp");
+  <div class="comments">//pFmgr-&gt;addPattern("*.log");</div>
+
+  pFmgr-&gt;search();
+
+  std::cout &lt;&lt; "\n\n";
+  return 0;
+}</div>
+#endif
+</pre>
+</body
+></html
+>

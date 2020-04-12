@@ -1,0 +1,98 @@
+<!Document html>
+<html>
+<head>
+<link rel = "stylesheet" href = "style.css">
+<script src="showHideClass.js"></script>
+</head>
+<body>
+<button onclick = "showHideClass('classes')">Show or Hide Class Contents</button>
+<button onclick = "showHideClass('functions')">Show or Hide Function Contents</button>
+<button onclick = "showHideClass('comments')">Show or Hide Comments</button><br>This file is not dependent on anything<pre>
+#pragma once
+<div class="comments">/////////////////////////////////////////////////////////////////////</div>
+<div class="comments">// DFS.h - Depth First Search using provider model                 //</div>
+<div class="comments">// ver 1.1                                                         //</div>
+<div class="comments">// Jim Fawcett, CSE687 - Object Oriented Design, Fall 2018         //</div>
+<div class="comments">/////////////////////////////////////////////////////////////////////</div>
+<div class="comments">/*
+*  Package Operations:
+*  -------------------
+*  DFS implements Depth First Search, depending on its Provider to
+*  implement branch and leaf operations.  
+*
+*  A directory provider has these corresponding parts:
+*  - branch is a directory (holds files and subdirectories)
+*  - leaf is a file
+*  A graph provider would have these corresponding parts:
+*  - branch is a vertex (holds edges)
+*  - leaf is an edge (points to a single vertex)
+*
+*  The Provider is essentially an application's adapter that lets the 
+*  DFS instance be ignorant of the details of its operations.
+*
+*  Required Files:
+*  ---------------
+*  DFS.h, DFS.cpp   <div class="comments">// DFS.cpp is not needed by applications</div>
+*  Provider.h
+*
+*  Maintenance History:
+*  --------------------
+*  ver 1.1 : 15 Aug 2018
+*  - added functionality for passing search and reporting parameters
+*    to its provider
+*  ver 1.0 : 12 Aug 2018
+*  - first release
+*/</div>
+#include "Provider.h"
+
+namespace Search
+{
+  template&lt;typename IProvider&gt;
+  class DFS
+  <div class="classes">{
+  public:
+    DFS(IProvider* pProvider) : pProvider_(pProvider) <div class="functions">{}</div>
+    virtual ~DFS() <div class="functions">{}</div>
+    void setMaxItems(size_t maxItems);
+
+    void search();
+    void find(IProvider* pProvider);
+  private:
+    bool done()
+    <div class="functions">{
+      return (0 &lt; maxItems_ && maxItems_ &lt;= count_);
+    }</div>
+    IProvider * pProvider_ = nullptr;
+    static size_t maxItems_;
+  };</div>
+
+  size_t DFS&lt;Provider::IProvider&gt;::maxItems_ = 0;
+
+  template&lt;typename IProvider&gt;
+  void DFS&lt;IProvider&gt;::setMaxItems(size_t maxItems)
+  <div class="functions">{
+    maxItems_ = maxItems;
+  }</div>
+  template&lt;typename IProvider&gt;
+  void DFS&lt;IProvider&gt;::search()
+  <div class="functions">{
+    find(pProvider_);
+  }</div>
+
+  template&lt;typename IProvider&gt;
+  void DFS&lt;IProvider&gt;::find(IProvider* pProvider)
+  <div class="functions">{
+    size_t count = pProvider-&gt;count();
+    if (pProvider-&gt;done())  <div class="comments">// stop recursion</div>
+      return;
+    pProvider-&gt;doOperation();
+    for (auto pProv : *(pProvider-&gt;children()))
+    {
+      find(pProv.get());
+    }
+  }</div>
+}
+</pre>
+</body
+></html
+>
